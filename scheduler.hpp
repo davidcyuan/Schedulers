@@ -10,8 +10,7 @@
 //                    caller's Task objects); do any pre-work (sort, bucket,
 //                    build the ready queue). Every task is runnable from t=0.
 //
-//   pick(returned, now)
-//                    Combined hand-back + selection, called once per tick:
+//   pick(returned)   Combined hand-back + selection, called once per tick:
 //                    - `returned` is the task the CPU is handing back because
 //                      it is still incomplete; re-admit it to your ready
 //                      structure. It is nullptr when the CPU has nothing to
@@ -31,7 +30,7 @@ public:
     virtual ~Scheduler() = default;
 
     virtual void  init(const std::vector<Task*>& tasks) = 0;
-    virtual Task* pick(Task* returned, int now) = 0;
+    virtual Task* pick(Task* returned) = 0;
 
     virtual const char* name() const = 0;
 };

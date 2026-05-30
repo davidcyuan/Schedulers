@@ -38,7 +38,7 @@ RunResult simulate(std::vector<Task>& workload, Scheduler& sched) {
     int now = 0;
     int completed = 0;
     while (completed < n) {
-        held = sched.pick(held, now);
+        held = sched.pick(held);
         if (held == nullptr) {
             ++now;  // CPU idle this tick
             continue;
@@ -58,34 +58,29 @@ RunResult simulate(std::vector<Task>& workload, Scheduler& sched) {
 
     RunResult result;
     result.tasks.reserve(n);
-    long sumT = 0, sumW = 0, sumR = 0;
+    int makespan = 0;
+    long sumTurnaround = 0;
     for (Task* t : ptrs) {
         const Timing& tm = timing[t];
-        int turnaround = tm.finish;
-        int waiting = turnaround - t->burst;
-        int response = tm.start;
-        result.tasks.push_back(
-            {t->id, t->burst, tm.start, tm.finish, turnaround, waiting, response});
-        sumT += turnaround;
-        sumW += waiting;
-        sumR += response;
+        int turnaround = tm.finish;  // all tasks present at t=0, so == finish
+        result.tasks.push_back({t->id, t->burst, tm.start, tm.finish, turnaround});
+        if (tm.finish > makespan) makespan = tm.finish;
+        sumTurnaround += turnaround;
     }
-    if (n > 0) {
-        result.avgTurnaround = static_cast<double>(sumT) / n;
-        result.avgWaiting = static_cast<double>(sumW) / n;
-        result.avgResponse = static_cast<double>(sumR) / n;
-    }
+    result.total_turnaround = makespan;  // time to process all tasks
+    result.average_turnaround =
+        n > 0 ? static_cast<double>(sumTurnaround) / n : 0.0;
     return result;
 }
 
 void printResult(const RunResult& r, const char* schedName) {
     std::printf("=== %s ===\n", schedName);
-    std::printf("%3s %6s %6s %6s %10s %8s %9s\n", "id", "burst", "start",
-                "finish", "turnaround", "waiting", "response");
+    std::printf("%3s %8s %6s %6s %10s\n", "id", "required", "start", "finish",
+                "turnaround");
     for (const auto& t : r.tasks) {
-        std::printf("%3d %6d %6d %6d %10d %8d %9d\n", t.id, t.burst, t.start,
-                    t.finish, t.turnaround, t.waiting, t.response);
+        std::printf("%3d %8d %6d %6d %10d\n", t.id, t.required, t.start,
+                    t.finish, t.turnaround);
     }
-    std::printf("avg %37.2f %8.2f %9.2f\n", r.avgTurnaround, r.avgWaiting,
-                r.avgResponse);
+    std::printf("total turnaround (makespan): %g\n", r.total_turnaround);
+    std::printf("average turnaround:          %.2f\n", r.average_turnaround);
 }
