@@ -22,10 +22,10 @@ int main(int argc, char** argv) {
 
     // A small sample workload. id, burst. All tasks are present at t=0.
     std::vector<Task> workload = {
-        {1, 5},
-        {2, 3},
-        {3, 6},
-        {4, 2},
+        {4, 10},
+        {1, 20},
+        {2, 10},
+        {3, 10},
     };
 
     RunResult result = simulate(workload, *sched);

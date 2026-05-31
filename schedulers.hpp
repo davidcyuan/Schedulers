@@ -65,6 +65,28 @@ public:
     const char* name() const override { return "SJF"; }
 };
 
+class RoundRobin : public Scheduler {
+    std::deque<Task*> taskQueue;
+public:
+    void init(const std::vector<Task*>& tasks) override {
+        for(Task* task : tasks) {
+            taskQueue.push_back(task);
+        }
+    }
+    Task* pick(Task* incoming) override {
+        if(incoming != nullptr){
+            taskQueue.push_back(incoming);
+        }
+        if(taskQueue.empty()){
+            return nullptr;
+        }
+        Task* nextTask = taskQueue.front();
+        taskQueue.pop_front();
+        return nextTask;
+    }
+    const char* name() const override { return "Round Robin"; }
+};
+
 // ---------------------------------------------------------------------------
 // Registry. Maps a scheduler name (as given on the command line) to a fresh
 // instance, or nullptr if unrecognized. Add a policy class above, then add one
@@ -72,5 +94,6 @@ public:
 inline std::unique_ptr<Scheduler> makeScheduler(const std::string& name) {
     if (name == "Fifo") return std::make_unique<Fifo>();
     if (name == "SJF") return std::make_unique<SJF>();
+    if (name == "RoundRobin") return std::make_unique<RoundRobin>();
     return nullptr;
 }
