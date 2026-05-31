@@ -4,22 +4,25 @@ BIN      := sim
 SRCS     := main.cpp simulator.cpp
 HDRS     := task.hpp scheduler.hpp schedulers.hpp metrics.hpp simulator.hpp
 
-# Scheduler to run, given as a bare argument: `make run fifo`.
-# Defaults to fifo when no name is supplied.
+# Program arguments, given as bare words after `run`:
+#   make run                  -> ./sim fifo
+#   make run RoundRobin       -> ./sim RoundRobin
+#   make run RoundRobin detailed  -> per-tick trace of the running task
+# Defaults to fifo when no scheduler is named.
 ifneq ($(filter run,$(MAKECMDGOALS)),)
-SCHED := $(filter-out run,$(MAKECMDGOALS))
-SCHED := $(if $(SCHED),$(SCHED),fifo)
-# Swallow the scheduler name so make doesn't treat it as a real target.
+ARGS := $(filter-out run,$(MAKECMDGOALS))
+ARGS := $(if $(ARGS),$(ARGS),fifo)
+# Swallow the extra words so make doesn't treat them as real targets.
 $(foreach g,$(filter-out run,$(MAKECMDGOALS)),$(eval $(g):;@:))
 else
-SCHED := fifo
+ARGS := fifo
 endif
 
 $(BIN): $(SRCS) $(HDRS)
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $@
 
 run: $(BIN)
-	@./$(BIN) $(SCHED)
+	@./$(BIN) $(ARGS)
 
 clean:
 	rm -f $(BIN)

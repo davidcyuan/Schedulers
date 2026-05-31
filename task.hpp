@@ -11,4 +11,5 @@ struct Task {
     int id;
     int burst;          // total CPU time required
     int remaining = 0;  // CPU time left to run
+    int penalty_coefficient;
 };
