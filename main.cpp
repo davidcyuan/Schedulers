@@ -30,14 +30,14 @@ int main(int argc, char** argv) {
     // coefficients are (loosely) inversely correlated with burst: shorter
     // tasks tend to carry a higher per-tick penalty.
     std::vector<Task> workload = {
-        // {.id = 1, .burst = 20, .penalty_coefficient = 1},
-        // {.id = 2, .burst = 10, .penalty_coefficient = 3},
-        // {.id = 3, .burst = 5,  .penalty_coefficient = 6},
-        // {.id = 4, .burst = 2,  .penalty_coefficient = 10},
         {.id = 1, .burst = 20, .penalty_coefficient = 1},
-        {.id = 2, .burst = 20, .penalty_coefficient = 1},
-        {.id = 3, .burst = 20,  .penalty_coefficient = 1},
-        {.id = 4, .burst = 20,  .penalty_coefficient = 1},
+        {.id = 2, .burst = 10, .penalty_coefficient = 3},
+        {.id = 3, .burst = 5,  .penalty_coefficient = 6},
+        {.id = 4, .burst = 2,  .penalty_coefficient = 10},
+        // {.id = 1, .burst = 20, .penalty_coefficient = 1},
+        // {.id = 2, .burst = 20, .penalty_coefficient = 1},
+        // {.id = 3, .burst = 20,  .penalty_coefficient = 1},
+        // {.id = 4, .burst = 20,  .penalty_coefficient = 1},
     };
 
     RunResult result = simulate(workload, *sched, detailed);

@@ -111,7 +111,7 @@ class MLFQ : public Scheduler {
             return !taskQueue.empty();
         }
     };
-    Level levels[4] = {Level(1), Level(2), Level(4), Level(8)};
+    Level levels[4] = {Level(2), Level(4), Level(8), Level(16)};
 public:
     void init(const std::vector<Task*>& tasks) override {
         for(Task* task : tasks) {

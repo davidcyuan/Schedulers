@@ -38,26 +38,44 @@ RunResult simulate(std::vector<Task>& workload, Scheduler& sched,
     Task* held = nullptr;
     int now = 0;
     int completed = 0;
+    int switch_cost = 0;
+
     while (completed < n) {
-        held = sched.pick(held);
-        if (held == nullptr) {
-            if (detailed) std::printf("t=%3d: idle\n", now);
-            ++now;  // CPU idle this tick
-            continue;
+        // not switching
+        if(switch_cost == 0){
+            // idle, do nothing
+            if(held == nullptr){
+                if (detailed) std::printf("t=%3d: idle\n", now);
+            }
+            else{
+                if (detailed) std::printf("t=%3d: task %d\n", now, held->id);
+
+                // run thread
+                Timing& tm = timing[held];
+                if (tm.start < 0) tm.start = now;
+                --held->remaining;
+
+                if(held->remaining == 0){
+                    tm.finish = now + 1;
+                    held = nullptr;
+                    completed++;
+                }
+            }
+
+            // next thread, maybe be the same as current thread
+            Task* next = sched.pick(held);
+            // switch cost
+            if(next != held){
+                held = next;
+                switch_cost += 1;
+            }
         }
-
-        if (detailed) std::printf("t=%3d: task %d\n", now, held->id);
-
-        Timing& tm = timing[held];
-        if (tm.start < 0) tm.start = now;
-        --held->remaining;
-        ++now;
-
-        if (held->remaining == 0) {
-            tm.finish = now;  // finalized the instant it completes
-            ++completed;
-            held = nullptr;
+        // switching
+        else{
+            switch_cost--;
         }
+        
+        now++;
     }
 
     RunResult result;
